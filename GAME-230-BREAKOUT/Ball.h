@@ -6,7 +6,7 @@ class Ball :
 {
 public:
 	Ball();
-	Ball(int sw, int sh, int r, Paddle *p);
+	Ball(int sw, int sh, int r, vector<Paddle*> &pads, Vector2f baseVel);
 	~Ball();
 	void update(float dt);
 	void render(RenderWindow &w) {
@@ -30,11 +30,17 @@ public:
 	
 private:
 	Vector2f velocity;
+	Vector2f baseVelocity;
 	CircleShape ball;
-	Paddle * paddle;
+	vector<Paddle*>  *paddles;
 	int screen_width;
 	int screen_height;
 	bool launching;
 	int radius;
+	SoundBuffer buff1;
+	SoundBuffer buff2;
+	Sound paddle_bounce;
+	Sound wall_bounce;
+	
 };
 

@@ -7,6 +7,8 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 #include <vector>
+#include <cmath>
+#include <sstream>
 using namespace sf;
 using namespace std;
 class GameObject

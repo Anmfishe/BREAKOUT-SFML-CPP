@@ -6,17 +6,29 @@ Ball::Ball()
 {
 }
 
+float dist(Vector2f a, Vector2f b) {
+	return sqrtf(((b.x - a.x) * (b.x - a.x)) + ((b.y - a.y) * (b.y - a.y)));
+}
 
-Ball::Ball(int sw, int sh, int r, Paddle * p) {
-	paddle = p;
+Ball::Ball(int sw, int sh, int r, vector<Paddle*> &pad, Vector2f baseVel) {
+	paddles = &pad;
 	screen_height = sh;
 	screen_width = sw;
 	radius = r;
 	ball.setRadius(radius);
 	ball.setOrigin(Vector2f(r, r));
 	launching = true;
-	velocity.x = 150;
-	velocity.y = -150;
+	velocity.x = baseVel.x;
+	velocity.y = -baseVel.y;
+	baseVelocity.x = baseVel.x;
+	baseVelocity.y = baseVel.y;
+
+	buff1.loadFromFile("paddle_bounce.wav");
+	buff2.loadFromFile("bounce.wav");
+	wall_bounce.setBuffer(buff2);
+	
+	paddle_bounce.setBuffer(buff1);
+
 }
 
 
@@ -29,8 +41,8 @@ void Ball::update(float dt)
 	Vector2f pos = ball.getPosition();
 	if (Keyboard::isKeyPressed(Keyboard::Space)) launching = false;
 	if (launching) {
-		pos.x = paddle->getMidpoint().x;
-		pos.y = paddle->getMidpoint().y - radius;
+		pos.x = (*paddles)[0]->getMidpoint().x;
+		pos.y = (*paddles)[0]->getMidpoint().y - radius;
 	}
 	else {
 		pos.x += velocity.x * dt;
@@ -38,25 +50,46 @@ void Ball::update(float dt)
 		if (pos.x + radius >= screen_width) {
 			pos.x = screen_width - radius;
 			reverseX();
+			wall_bounce.play();
 		}
 		if (pos.x - radius <= 0) {
 			pos.x = radius;
 			reverseX();
+			wall_bounce.play();
 		}
 		if (pos.y - radius <= 0) {
 			pos.y = radius;
 			reverseY();
+			wall_bounce.play();
 		}
 		if (pos.y + radius >= screen_height) {
 			launching = true;
+			for(int i = 0; i < (*paddles).size(); ++i)
+				(*paddles)[i]->lose_life();
 		}
-		Vector2f paddlePos = paddle->getPosition();
-		if (!launching &&
-			pos.x - radius >= paddlePos.x &&
-			pos.x + radius <= paddlePos.x + paddle->getWidth() &&
-			pos.y + radius >= paddlePos.y) {
-			pos.y = paddlePos.y - radius;
-			reverseY();
+		for (int i = 0; i < (*paddles).size(); ++i) {
+			Vector2f paddlePos = (*paddles)[i]->getPosition();
+			if (!launching &&
+				pos.x >= paddlePos.x &&
+				pos.x <= paddlePos.x + (*paddles)[i]->getWidth() &&
+				pos.y + radius >= paddlePos.y) {
+				paddle_bounce.play();
+				//wall_bounce.play();
+				pos.y = paddlePos.y - radius;
+				reverseY();
+				float distance = dist(pos, (*paddles)[i]->getMidpoint());
+				velocity.x = baseVelocity.x * distance / 12;
+				if (pos.x < (*paddles)[i]->getMidpoint().x) {
+					if (velocity.x > 0) {
+						reverseX();
+					}
+				}
+				else {
+					if (velocity.x < 0) {
+						reverseX();
+					}
+				}
+			}
 		}
 	}
 	ball.setPosition(pos);

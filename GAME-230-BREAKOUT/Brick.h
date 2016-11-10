@@ -1,12 +1,13 @@
 #pragma once
 #include "GameObject.h"
 #include "Ball.h"
+#include "Score.h"
 class Brick :
 	public GameObject
 {
 public:
 	Brick();
-	Brick(float x, float y, int sw, int sh, int l, Ball * b);
+	Brick(bool obh, bool invis, float x, float y, int sw, int sh, int l, Ball * b, Score * s);
 	~Brick();
 	void update(float dt);
 	void render(RenderWindow &w) {
@@ -19,14 +20,33 @@ public:
 		return lives;
 	};
 	void setTexture(Texture & t) {
-		brick.setTexture(&t);
+		if (invisible) 
+			brick.setTexture(&invisible_tex);
+		else if (one_hit_brick)
+			brick.setFillColor(Color::Blue);
+		else
+			brick.setTexture(&t);
 	}
+	bool getOHB() {
+		return one_hit_brick;
+	};
 private:
 	Ball * ball;
+	Score * score;
 	RectangleShape brick;
 	int brick_width;
 	int brick_height;
 	int lives;
+	bool one_hit_brick;
+	bool invisible;
+	Sound brick_break;
+	Sound brick_hit;
+	SoundBuffer buff2;
+	SoundBuffer buff1;
+	Texture invisible_tex;
+	
+	
+	
 	
 };
 

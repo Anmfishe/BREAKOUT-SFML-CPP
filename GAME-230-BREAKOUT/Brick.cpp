@@ -7,13 +7,31 @@ Brick::Brick()
 }
 
 
-Brick::Brick(float x, float y, int sw, int sh, int l, Ball * b) {
-	lives = l;
+Brick::Brick(bool ohb, bool invis, float x, float y, int sw, int sh, int l, Ball * b, Score * s) {
+	
 	ball = b;
+	score = s;
+	one_hit_brick = ohb;
+	invisible = invis;
+	if (ohb) {
+		lives = 1;
+	}
+	else if(invis){
+		lives = 2;
+		invisible_tex.loadFromFile("Transparent.png");
+	}
+	else {
+		lives = l;
+	}
 	brick_width = sw / 10;
 	brick_height = brick_width / 2;
 	brick.setPosition(Vector2f(x, y));
 	brick.setSize(Vector2f(brick_width, brick_height));
+	buff2.loadFromFile("brick_hit.wav");
+	brick_hit.setBuffer(buff2);
+	buff1.loadFromFile("brick_break.wav");
+	brick_break.setBuffer(buff1);
+	
 }
 
 
@@ -32,8 +50,19 @@ void Brick::update(float dt)
 		ballPos.y <= pos.y + brick_height) {
 		ball->setPosition(pos.x - radius, ballPos.y);
 		lives--;
+		if (invisible) {
+			brick.setTexture(NULL);
+			one_hit_brick = true;
+			invisible = false;
+		}
+		if (lives > 0) {
+			brick_hit.play();
+		}
+		else {
+			brick_break.play();
+		}
 		ball->reverseX();
-		
+		score->increase_score();
 	}
 	if (ballPos.x - radius <= pos.x + brick_width &&
 		ballPos.x + radius >= pos.x + brick_width &&
@@ -41,8 +70,19 @@ void Brick::update(float dt)
 		ballPos.y <= pos.y + brick_height) {
 		ball->setPosition(pos.x + brick_width + radius, ballPos.y);
 		lives--;
+		if (invisible) {
+			brick.setTexture(NULL);
+			one_hit_brick = true;
+			invisible = false;
+		}
+		if (lives > 0) {
+			brick_hit.play();
+		}
+		else {
+			brick_break.play();
+		}
 		ball->reverseX();
-		
+		score->increase_score();
 	}
 	if (ballPos.y - radius <= pos.y + brick_height &&
 		ballPos.y + radius >= pos.y + brick_height &&
@@ -51,6 +91,18 @@ void Brick::update(float dt)
 		ball->setPosition(ballPos.x, pos.y + brick_height + radius);
 		ball->reverseY();
 		lives--;
+		if (invisible) {
+			brick.setTexture(NULL);
+			one_hit_brick = true;
+			invisible = false;
+		}
+		if (lives > 0) {
+			brick_hit.play();
+		}
+		else {
+			brick_break.play();
+		}
+		score->increase_score();
 	}
 	if (ballPos.y + radius >= pos.y &&
 		ballPos.y - radius <= pos.y &&
@@ -59,6 +111,17 @@ void Brick::update(float dt)
 		ball->setPosition(ballPos.x, pos.y - radius);
 		ball->reverseY();
 		lives--;
-		
+		if (invisible) {
+			brick.setTexture(NULL);
+			one_hit_brick = true;
+			invisible = false;
+		}
+		if (lives > 0) {
+			brick_hit.play();
+		}
+		else {
+			brick_break.play();
+		}
+		score->increase_score();
 	}
 }
