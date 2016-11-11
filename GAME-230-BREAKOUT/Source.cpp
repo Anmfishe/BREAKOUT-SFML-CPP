@@ -14,26 +14,32 @@ void load_level_two();
 void load_level_three();
 void load_next_level();
 void empty_scene();
+void switch_background();
 int level;
 int lives_left;
 int num_paddles = 1;
 bool lost = false;
+bool background_one = true;
 float current_score = 0;
 Vector2f speed;
 float speedX = 150;
 float speedY = 200;
+float accum_time = 0;
 vector<GameObject*> SceneGraph;
 vector<Paddle*> Paddles;
 RenderWindow window;
-Texture t1, t2, t3, t4;
+Texture t1, t2, t3, t4, bg1, bg2;
 Text replay_message;
 Font font;
+RectangleShape background;
 Sound win;
 Sound lose;
 Sound brick_break;
+Sound background_song;
 SoundBuffer buff;
 SoundBuffer buff2;
 SoundBuffer buff3;
+SoundBuffer bgsb;
 vector<Texture> texts;
 
 
@@ -48,6 +54,11 @@ int main()
 	t2.loadFromFile("tex2.png");
 	t3.loadFromFile("tex3.png");
 	t4.loadFromFile("text1.png");
+	bg1.loadFromFile("OhMyGod.png");
+	bg2.loadFromFile("DoIPray.png");
+	background.setPosition(0, 0);
+	background.setTexture(&bg1);
+	background.setSize(Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT));
 	texts.push_back(t4);
 	texts.push_back(t3);
 	texts.push_back(t2);
@@ -68,6 +79,9 @@ int main()
 	brick_break.setBuffer(buff2);
 	buff3.loadFromFile("lose.wav");
 	lose.setBuffer(buff3);
+	bgsb.loadFromFile("HEYYEAH.wav");
+	background_song.setBuffer(bgsb);
+	background_song.play();
 
 
  	load_level_one();
@@ -78,6 +92,9 @@ int main()
 
 	while (window.isOpen())
 	{
+		if (background_song.getStatus() != SoundSource::Playing) {
+			background_song.play();
+		}
 		Event  event;
 		while (window.pollEvent(event))
 		{
@@ -97,13 +114,28 @@ int main()
 		}
 
 		float dt = clock.restart().asSeconds();
-
+		accum_time += dt;
+		if (accum_time > 0.2213f) {
+			accum_time -= 0.2213f;
+			switch_background();
+		}
 		update_state(dt);
 		render_frame();
 		window.display();
 	}
 
 	return 0;
+}
+
+void switch_background() {
+	if (background_one) {
+		background_one = false;
+		background.setTexture(&bg2);
+	}
+	else {
+		background_one = true;
+		background.setTexture(&bg1);
+	}
 }
 
 void update_state(float dt)
@@ -158,6 +190,7 @@ void update_state(float dt)
 void render_frame()
 {
 	window.clear(Color(128));
+	window.draw(background);
 	if (!lost) {
 		for (auto i = SceneGraph.begin(); i != SceneGraph.end(); ++i) {
 			(*i)->render(window);

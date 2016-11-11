@@ -13,6 +13,10 @@ Brick::Brick(bool ohb, bool invis, float x, float y, int sw, int sh, int l, Ball
 	score = s;
 	one_hit_brick = ohb;
 	invisible = invis;
+	if (!invis) {
+		brick.setOutlineColor(Color::Black);
+		brick.setOutlineThickness(2);
+	}
 	if (ohb) {
 		lives = 1;
 	}

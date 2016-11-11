@@ -23,7 +23,7 @@ public:
 		if (invisible) 
 			brick.setTexture(&invisible_tex);
 		else if (one_hit_brick)
-			brick.setFillColor(Color::Blue);
+			brick.setFillColor(Color::Yellow);
 		else
 			brick.setTexture(&t);
 	}

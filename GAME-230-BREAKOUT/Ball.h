@@ -41,6 +41,6 @@ private:
 	SoundBuffer buff2;
 	Sound paddle_bounce;
 	Sound wall_bounce;
-	
+	Texture bt;
 };
 

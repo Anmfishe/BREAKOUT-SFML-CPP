@@ -17,6 +17,10 @@ Ball::Ball(int sw, int sh, int r, vector<Paddle*> &pad, Vector2f baseVel) {
 	radius = r;
 	ball.setRadius(radius);
 	ball.setOrigin(Vector2f(r, r));
+	ball.setOutlineColor(Color::Black);
+	ball.setOutlineThickness(2);
+	bt.loadFromFile("OhMyGod.png");
+	ball.setTexture(&bt);
 	launching = true;
 	velocity.x = baseVel.x;
 	velocity.y = -baseVel.y;
@@ -38,6 +42,10 @@ Ball::~Ball()
 
 void Ball::update(float dt)
 {
+
+	float rotation = ball.getRotation();
+	ball.setRotation(rotation + 100 * dt);
+
 	Vector2f pos = ball.getPosition();
 	if (Keyboard::isKeyPressed(Keyboard::Space)) launching = false;
 	if (launching) {
@@ -74,7 +82,6 @@ void Ball::update(float dt)
 				pos.x <= paddlePos.x + (*paddles)[i]->getWidth() &&
 				pos.y + radius >= paddlePos.y) {
 				paddle_bounce.play();
-				//wall_bounce.play();
 				pos.y = paddlePos.y - radius;
 				reverseY();
 				float distance = dist(pos, (*paddles)[i]->getMidpoint());
